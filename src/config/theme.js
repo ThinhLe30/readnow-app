@@ -13,11 +13,11 @@ const theme = {
   },
   dark: {
     theme: 'dark',
-    headerColor: '#3C5B6F',
+    headerColor: '#1D5868',
     bottomTabColor: 'white',
     cardBackground: 'white',
     textColor: 'black',
-    statusColor: '#3C5B6F',
+    statusColor: '#1D5868',
     toggleBackColor: '#FF055D',
     iconColor: '#ffffff',
     themeBack: '#fcf8f8',

@@ -13,10 +13,6 @@ import theme from '../config/theme';
 import themeContext from '../config/themeContext';
 
 import TabNavigator from './TabNavigator';
-import Health from '../screens/Health';
-import Business from '../screens/Business';
-import Sports from '../screens/Sports';
-import Tech from '../screens/Tech';
 
 //country news
 import India from '../screens/Country/India';

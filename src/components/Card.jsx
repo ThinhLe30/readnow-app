@@ -1,10 +1,7 @@
-import {useTheme} from '@react-navigation/native';
 import React, {useContext, useState} from 'react';
 import SwipeUpDownModal from 'react-native-swipe-modal-up-down';
 import {
   View,
-  Modal,
-  Button,
   StyleSheet,
   Image,
   Dimensions,
@@ -38,7 +35,9 @@ function Card({item, onPress}) {
 
   const toggleSavedForLater = () => {
     setIconBackground(iconBackground === 'heart' ? 'heart-outline' : 'heart');
-    setIconColor(iconBackground === 'heart' ? theme.textColor : '#3C5B6F');
+    setIconColor(
+      iconBackground === 'heart' ? theme.textColor : theme.headerColor,
+    );
   };
 
   const theme = useContext(themeContext);

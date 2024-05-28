@@ -1,28 +1,18 @@
 import moment from 'moment';
-import {
-  View,
-  Modal,
-  Button,
-  StyleSheet,
-  Image,
-  Dimensions,
-  Text,
-  Share,
-  TouchableNativeFeedback,
-  FlatList,
-  TouchableOpacity,
-  ImageBackground,
-  Linking,
-} from 'react-native';
+import {View, StyleSheet, Text, ImageBackground} from 'react-native';
+import {useWindowDimensions} from 'react-native';
+import RenderHtml from 'react-native-render-html';
 import themeContext from '../config/themeContext';
 import React, {useContext} from 'react';
 import {ScrollView} from 'react-native-gesture-handler';
-const windowHeight = Dimensions.get('window').height;
-const windowWidth = Dimensions.get('window').width;
 
 function Detail({item, onPress}) {
+  const {width} = useWindowDimensions();
   var resTitle = item.title;
   const theme = useContext(themeContext);
+  const source = {
+    html: item.content,
+  };
   var resDesc = '';
   if (item.content === null) {
     resDesc = 'null';
@@ -46,12 +36,13 @@ function Detail({item, onPress}) {
               }}>
               {resTitle}
             </Text>
-            <Text style={{color: theme.textColor, fontSize: 15, marginTop: 15}}>
+            <RenderHtml source={source} contentWidth={width} />
+            {/* <Text style={{color: theme.textColor, fontSize: 15, marginTop: 15}}>
               {resDesc}
             </Text>
             <Text style={{color: theme.textColor, fontSize: 15, marginTop: 15}}>
               {resDesc}
-            </Text>
+            </Text> */}
           </View>
           <View>
             <Text

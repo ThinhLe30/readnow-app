@@ -1,8 +1,6 @@
-import {useTheme} from '@react-navigation/native';
 import React, {useContext, useState} from 'react';
 import {
   Modal,
-  TouchableOpacity,
   Share,
   Button,
   View,
@@ -10,13 +8,9 @@ import {
   TouchableWithoutFeedback,
   Image,
   Dimensions,
-  Linking,
   Text,
-  TouchableNativeFeedback,
 } from 'react-native';
-import Ionicons from 'react-native-vector-icons/Ionicons';
 import themeContext from '../config/themeContext';
-import moment from 'moment';
 
 const {width, height} = Dimensions.get('window');
 

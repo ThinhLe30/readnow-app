@@ -19,7 +19,7 @@ const TrendNews = ({navigation}) => {
 
   function getNewsFromAPI() {
     newAPI
-      .get('articles')
+      .get('search')
       .then(async function (response) {
         setNewsTech(response.data.data);
       })
@@ -49,12 +49,7 @@ const TrendNews = ({navigation}) => {
           showsHorizontalScrollIndicator={false}
           data={newstech.articles}
           keyExtractor={(item, index) => 'key' + index}
-          renderItem={({item}) => (
-            <TopNewsCard
-  
-              item={item}
-            />
-          )}
+          renderItem={({item}) => <TopNewsCard item={item} />}
         />
       )}
     </View>
