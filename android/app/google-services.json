@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "466657629133",
+    "project_id": "readnow-23684",
+    "storage_bucket": "readnow-23684.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:466657629133:android:e596aafbf092da9174ea84",
+        "android_client_info": {
+          "package_name": "com.readnow.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "466657629133-85b859r6udke9jcb4via61qk6fu00bu1.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.readnow.app",
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+          }
+        },
+        {
+          "client_id": "466657629133-86eq1rqpmhbe2uraea4l6mhf3pu8554s.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCE7iCSSWyPPVPpA5RKdSSV2rzpySKeoQQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "466657629133-86eq1rqpmhbe2uraea4l6mhf3pu8554s.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

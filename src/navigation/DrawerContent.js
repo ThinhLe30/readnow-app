@@ -1,10 +1,6 @@
-import React, {useEffect, useState, useContext} from 'react';
+import React, {useState, useContext} from 'react';
 import {View, Text, Switch, Image} from 'react-native';
-import {
-  DrawerContentScrollView,
-  DrawerItemList,
-  DrawerItem,
-} from '@react-navigation/drawer';
+import {DrawerContentScrollView} from '@react-navigation/drawer';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {EventRegister} from 'react-native-event-listeners';
 import themeContext from '../config/themeContext';
@@ -20,14 +16,14 @@ export default function CustomDrawerContent(props) {
         style={{
           backgroundColor: theme.headerColor,
           alignItems: 'center',
-          marginTop: -10,
+          marginTop: -4,
           marginBottom: 10,
         }}>
         <Image
-          source={require('../assets/img/header-logo.png')}
+          source={require('../assets/img/header-logo-book.png')}
           style={{
-            width: 50,
-            height: 50,
+            width: 20,
+            height: 20,
             backgroundColor: theme.headerColor,
           }}
         />
@@ -38,29 +34,10 @@ export default function CustomDrawerContent(props) {
             fontWeight: 'bold',
             alignItems: 'center',
           }}>
-          The NewsXTimes
+          ReadNow
         </Text>
       </View>
 
-      <DrawerItem label="Country News" />
-      <View
-        style={{
-          borderBottomColor: 'gray',
-          borderBottomWidth: 0.5,
-          width: '100%',
-          alignSelf: 'center',
-        }}
-      />
-      <DrawerItemList {...props} />
-      <View
-        style={{
-          borderBottomColor: 'gray',
-          borderBottomWidth: 0.5,
-          width: '100%',
-          alignSelf: 'center',
-        }}
-      />
-      <DrawerItem label="Theme" />
       <View
         style={{
           flexDirection: 'row',
@@ -70,7 +47,7 @@ export default function CustomDrawerContent(props) {
           borderTopRightRadius: 30,
           borderBottomRightRadius: 30,
         }}>
-        <Ionicons name="ios-moon-sharp" size={25} color={theme.iconColor} />
+        <Ionicons name="moon" size={25} color={theme.iconColor} />
         <Text
           style={{
             fontSize: 18,

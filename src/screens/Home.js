@@ -8,6 +8,7 @@ import {
   ScrollView,
   StatusBar,
   Image,
+  Pressable,
 } from 'react-native';
 
 import newAPI from '../apis/News';
@@ -17,6 +18,7 @@ import TrendNews from '../screens/TrendNews';
 import themeContext from '../config/themeContext';
 
 //API call
+
 const Home = ({navigation}) => {
   const [isLoading, setLoading] = useState(true);
   const [recent, setRecentNews] = useState([]);
@@ -41,29 +43,7 @@ const Home = ({navigation}) => {
   const theme = useContext(themeContext);
 
   return (
-    <ScrollView style={{backgroundColor: theme.backColor}}>
-      <StatusBar backgroundColor={theme.statusColor} />
-      <View
-        style={{
-          backgroundColor: theme.headerColor,
-          flexDirection: 'row',
-          justifyContent: 'space-between',
-          paddingBottom: 10,
-          paddingLeft: 10,
-          elevation: 8,
-        }}>
-        <Image
-          source={require('../assets/img/header-logo-book.png')}
-          style={{
-            width: 50,
-            height: 50,
-            alignSelf: 'flex-start',
-            paddingLeft: 10,
-            marginLeft: 10,
-          }}
-        />
-        <Text style={styles.mainText}>ReadNow</Text>
-      </View>
+    <View style={{backgroundColor: theme.backColor}}>
       <View>
         <View>
           <Text
@@ -103,13 +83,14 @@ const Home = ({navigation}) => {
           </Text>
           <FlatList
             data={recent}
+            showsVerticalScrollIndicator={false}
             keyExtractor={(item, index) => 'key' + index}
             renderItem={({item}) => <Card item={item} />}
             style={{marginBottom: 65}}
           />
         </View>
       </View>
-    </ScrollView>
+    </View>
   );
 };
 

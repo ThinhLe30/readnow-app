@@ -1,10 +1,25 @@
 import React from 'react';
 import {View, StyleSheet, Text} from 'react-native';
-
+import {GoogleSigninButton} from '@react-native-google-signin/google-signin';
+import {signInWithGoogle} from '../config/auth';
 const About = () => {
+  const handleSignIn = async () => {
+    const userInfo = await signInWithGoogle();
+    setUserInfo(userInfo?.user?.id);
+  };
   return (
     <View style={styles.center}>
-      <Text>This is the about screen</Text>
+      <View
+        style={{
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+        }}>
+        <Text>{userInfo || ''}</Text>
+        <GoogleSigninButton
+          size={GoogleSigninButton.Size.Wide}
+          onPress={handleSignIn}
+        />
+      </View>
     </View>
   );
 };

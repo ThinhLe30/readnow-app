@@ -10,24 +10,23 @@ import {
   TouchableNativeFeedback,
   TouchableOpacity,
 } from 'react-native';
-import {AuthContext} from '../hooks/authContext';
-import {LoginRequiredContext} from '../hooks/loginContext';
-
 import themeContext from '../config/themeContext';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Detail from './Detail';
 import moment from 'moment';
-import newAPI from '../apis/News';
+
 const {width, height} = Dimensions.get('window');
 
-function Card({item, onPress}) {
-  const context = useContext(LoginRequiredContext);
-  const {userInfo} = useContext(AuthContext);
+function ShortCard({item, onPress}) {
   const [modalVisible, setModalVisible] = useState(false);
   const [iconColor, setIconColor] = useState('#3C5B6F');
   const [iconBackground, setIconBackground] = useState('heart-outline');
   const [animateModal, setanimateModal] = useState(false);
+  const source = {
+    html: item.content,
+  };
 
+  //handleShare
   const handleShare = () => {
     const {url, title} = item; //get url and title form our prop
     var message = `${title} \n\n Read More ${url} \n\n Shared via ReadNow`; // custome message
@@ -38,36 +37,24 @@ function Card({item, onPress}) {
   };
 
   const toggleSavedForLater = () => {
-    console.log('userInfo:', userInfo);
-    if (!userInfo) {
-      context.handleLoginRequired(true);
-    } else {
-      setIconBackground(iconBackground === 'heart' ? 'heart-outline' : 'heart');
-      setIconColor(
-        iconBackground === 'heart' ? theme.textColor : theme.headerColor,
-      );
-    }
-  };
-  const handleClick = async () => {
-    setModalVisible(!modalVisible);
-
-    try {
-      newAPI.post(`article-interact/view/${item.id}`);
-    } catch (error) {
-      console.log(error);
-    }
+    setIconBackground(iconBackground === 'heart' ? 'heart-outline' : 'heart');
+    setIconColor(
+      iconBackground === 'heart' ? theme.textColor : theme.headerColor,
+    );
   };
 
   const theme = useContext(themeContext);
   return (
     <View>
-      <TouchableNativeFeedback onPress={handleClick}>
+      <TouchableNativeFeedback onPress={() => setModalVisible(!modalVisible)}>
         <View
           style={{
+            position: 'relative',
             margin: 20,
             borderRadius: 15,
             backgroundColor: theme.cardBackground,
-            height: 360,
+            height: height - 140,
+            flex: 1,
             overflow: 'hidden',
             elevation: 3,
           }}>
@@ -108,13 +95,18 @@ function Card({item, onPress}) {
           <Text style={styles.author}>
             {item.author ? item.author : 'Not Available'}
           </Text>
-          <Text style={styles.summary} numberOfLines={5}>
+          <Text style={styles.desc} numberOfLines={10}>
             {item.summary}
           </Text>
+          <Text style={styles.content} numberOfLines={18}>
+            {item.content}
+          </Text>
+
+          {/* <RenderHtml source={source} contentWidth={width} /> */}
           <View
             className="
-          absolute  w-full 
-          bottom-2"
+            absolute  w-full 
+            bottom-2"
             style={{
               flexDirection: 'row',
               justifyContent: 'space-between',
@@ -211,8 +203,7 @@ function Card({item, onPress}) {
 const styles = StyleSheet.create({
   image: {
     width: width,
-    height: height * 0.16,
-    // resizeMode: 'cover',
+    height: height * 0.3,
   },
   author: {
     width: width,
@@ -220,14 +211,22 @@ const styles = StyleSheet.create({
     marginHorizontal: width * 0.03,
     color: 'gray',
   },
+  content: {
+    width: width,
+    marginTop: -10,
+    marginHorizontal: width * 0.03,
+    color: 'black',
+  },
   desc: {
     width: width,
     marginTop: 5,
     marginHorizontal: width * 0.03,
     color: 'black',
     maxWidth: width * 0.85,
+    textAlign: 'justify',
+    fontStyle: 'italic',
   },
-  summary: {
+  content: {
     width: width,
     marginTop: 5,
     marginHorizontal: width * 0.03,
@@ -255,4 +254,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Card;
+export default ShortCard;

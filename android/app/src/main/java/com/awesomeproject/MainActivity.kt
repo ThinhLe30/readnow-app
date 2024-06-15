@@ -1,4 +1,4 @@
-package com.awesomeproject
+package com.readnow.app
 
 import com.facebook.react.ReactActivity
 import com.facebook.react.ReactActivityDelegate

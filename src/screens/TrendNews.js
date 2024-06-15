@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {StyleSheet, FlatList, View, ActivityIndicator} from 'react-native';
+import {FlatList, View, ActivityIndicator, Dimensions} from 'react-native';
 
 import TopNewsCard from '../components/TopNewsCard';
 import newAPI from '../apis/News';
@@ -7,6 +7,8 @@ import newAPI from '../apis/News';
 const TrendNews = ({navigation}) => {
   const [isLoading, setLoading] = useState(true);
   const [newstech, setNewsTech] = useState([]);
+
+  const width = Dimensions.get('window');
 
   useEffect(() => {
     getNewsFromAPI();
@@ -19,7 +21,7 @@ const TrendNews = ({navigation}) => {
 
   function getNewsFromAPI() {
     newAPI
-      .get('search')
+      .get('search/trending')
       .then(async function (response) {
         setNewsTech(response.data.data);
       })
@@ -47,7 +49,7 @@ const TrendNews = ({navigation}) => {
           }}
           horizontal={true}
           showsHorizontalScrollIndicator={false}
-          data={newstech.articles}
+          data={newstech}
           keyExtractor={(item, index) => 'key' + index}
           renderItem={({item}) => <TopNewsCard item={item} />}
         />

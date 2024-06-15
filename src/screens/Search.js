@@ -7,37 +7,52 @@ import {
   TouchableOpacity,
   Text,
   ScrollView,
+  Modal,
+  Pressable,
 } from 'react-native';
+import CalendarPicker from 'react-native-calendar-picker';
 import themeContext from '../config/themeContext';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Card from '../components/Card';
 import newAPI from '../apis/News';
 import {Colors} from 'react-native/Libraries/NewAppScreen';
 import SearchBar from 'react-native-platform-searchbar';
+import moment from 'moment';
+import {AuthContext} from '../hooks/authContext';
+import {AuthRequirement} from './AuthRequired';
 
 const Search = ({navigation}) => {
   const [loading, setLoading] = useState(false);
   const [articles, setArticles] = useState([]);
   const [categories, setCategories] = useState([]);
   const [keyword, setKeyword] = useState('');
-  const [page, setPage] = useState(1);
+  const [nextPage, setNextPage] = useState(1);
   const [isEnd, setEnd] = useState(false);
   const [activeID, setActiveID] = useState('');
+  const [fromDate, setFromDate] = useState('');
+  const [toDate, setToDate] = useState('');
   const scrollRef = useRef(null);
   const itemRefs = useRef([]);
+  const [modalVisible, setModalVisible] = useState(false);
+  const {userInfo, logout} = useContext(AuthContext);
 
   useEffect(() => {
-    getArticle(page, keyword, '');
+    loadFirstPage();
+  }, []);
+  useEffect(() => {
     getCategories();
   }, []);
 
   function onRefresh() {
-    setPage(1);
-    setArticles([]);
+    console.log('onRefresh', loading);
+    loadFirstPage();
     setKeyword('');
+    setActiveID('');
+    setFromDate('');
+    setToDate('');
     setEnd(false);
-    getArticle(1, '', '');
   }
+
   function getCategories() {
     newAPI
       .get('search/categories')
@@ -48,40 +63,106 @@ const Search = ({navigation}) => {
         console.log(error);
       });
   }
-  function getArticle(nextPage, keyword, category) {
-    console.log('getArticle', nextPage, keyword, isEnd);
+  function loadFirstPage() {
+    console.log('loadFirstPage');
+    setLoading(true);
+    newAPI
+      .get('search')
+      .then(async function (response) {
+        const nextPage = response.data.data.metadata.nextPage;
+        setArticles(response.data.data.articles);
+        setNextPage(nextPage);
+      })
+      .catch(function (error) {
+        console.log(error);
+      })
+      .finally(function () {
+        setLoading(false);
+      });
+  }
+
+  function searchArticles() {
     if (loading) return;
     if (isEnd) return;
     setLoading(true);
-    category = activeID ? `&categories=${activeID}` : '';
-    let url = `search?keyword=${keyword}&page=${nextPage}${category}`;
-    console.log('url', url);
+    let url = `search?keyword=${keyword}&page=1&categories=${activeID}&fromDate=${fromDate}&toDate=${toDate}`;
+    console.log(url);
     newAPI
       .get(url)
-      // .get('search?categories=123')
       .then(async function (response) {
-        const totalPage = response.data.data.metadata.numberOfPage;
-        const currentPage = response.data.data.metadata.currentPage;
-        console.log('totalPage', totalPage);
-        console.log('currentPage', currentPage);
-        if (response.data.data.articles.length === 0) {
-          // setArticles(response.data.data.articles);
-          console.log('no data');
-          setPage(1);
-          setLoading(false);
-          setEnd(true);
-        } else {
-          setArticles(existingArticles => [
-            ...existingArticles,
-            ...response.data.data.articles,
-          ]);
-          if (currentPage === totalPage) {
+        const _nextPage = response.data.data.metadata.nextPage;
+        if (response.data.data.articles.length > 0) {
+          setArticles(response.data.data.articles);
+          if (!_nextPage) {
             setEnd(true);
             return;
           }
-          if (currentPage < totalPage) {
-            setPage(currentPage + 1);
+          setNextPage(_nextPage);
+        } else {
+          setArticles([]);
+          setNextPage(1);
+          setLoading(false);
+          setEnd(true);
+        }
+      })
+      .catch(function (error) {
+        console.log(error);
+      })
+      .finally(function () {
+        setLoading(false);
+      });
+  }
+
+  function searchCategories(categoryID) {
+    setLoading(true);
+    let url = `search?keyword=${keyword}&page=1&categories=${categoryID}&fromDate=${fromDate}&toDate=${toDate}`;
+    console.log(url);
+    newAPI
+      .get(url)
+      .then(async function (response) {
+        const _nextPage = response.data.data.metadata.nextPage;
+        if (response.data.data.articles.length > 0) {
+          setArticles(response.data.data.articles);
+          if (!_nextPage) {
+            setEnd(true);
+            return;
           }
+          setNextPage(_nextPage);
+        } else {
+          setArticles([]);
+          setNextPage(1);
+          setLoading(false);
+          setEnd(true);
+        }
+      })
+      .catch(function (error) {
+        console.log(error);
+      })
+      .finally(function () {
+        setLoading(false);
+      });
+  }
+
+  function searchByDate() {
+    setLoading(true);
+    let url = `search?keyword=${keyword}&page=1&categories=${activeID}&fromDate=${fromDate}&toDate=${toDate}`;
+    console.log(url);
+    newAPI
+      .get(url)
+      .then(async function (response) {
+        const _nextPage = response.data.data.metadata.nextPage;
+        if (response.data.data.articles.length > 0) {
+          setArticles(response.data.data.articles);
+          if (!_nextPage) {
+            setEnd(true);
+            return;
+          }
+          setNextPage(_nextPage);
+        } else {
+          setArticles([]);
+          setNextPage(1);
+          setLoading(false);
+          setEnd(true);
         }
       })
       .catch(function (error) {
@@ -93,45 +174,89 @@ const Search = ({navigation}) => {
   }
 
   function handleSearch() {
-    setArticles([]);
-    setPage(1);
     setEnd(false);
-    getArticle(1, keyword);
+    searchArticles();
+  }
+
+  function loadMoreArticles() {
+    if (loading) return;
+    if (isEnd) return;
+    setLoading(true);
+    let url = `search?keyword=${keyword}&page=${nextPage}&categories=${activeID}&fromDate=${fromDate}&toDate=${toDate}`;
+    console.log(url);
+    newAPI
+      .get(url)
+      .then(async function (response) {
+        // const totalPage = response.data.data.metadata.numberOfPage;
+        // const currentPage = response.data.data.metadata.currentPage;
+        const _nextPage = response.data.data.metadata.nextPage;
+        if (response.data.data.articles.length > 0) {
+          setArticles(existingArticles => [
+            ...existingArticles,
+            ...response.data.data.articles,
+          ]);
+          if (!_nextPage) {
+            setEnd(true);
+            return;
+          }
+          setNextPage(_nextPage);
+        } else {
+          setArticles([]);
+          setNextPage(1);
+          setLoading(false);
+          setEnd(true);
+        }
+      })
+      .catch(function (error) {
+        console.log(error);
+      })
+      .finally(function () {
+        setLoading(false);
+      });
   }
   function chooseCategory(item, index) {
-    let categories = ''
+    console.log('chooseCategory');
+    let categoryId = '';
     setActiveID(prevActiveID => {
       if (prevActiveID === item.id) {
         return '';
       } else {
-        categories = item.id;
+        categoryId = item.id;
         return item.id;
       }
     });
-    setArticles([]);
-    setPage(1);
     setEnd(false);
-    getArticle(1, '', categories);
-    // itemRefs.current[index]?.measure((x, y, width, height, pageX, pageY) => {
-    //   scrollRef.current?.scrollTo({x: pageX, y: 0, animated: true});
-    // });
+    searchCategories(categoryId);
+  }
+
+  function onDateChange(date, type) {
+    if (type === 'END_DATE') {
+      setToDate(moment(date).format('YYYY-MM-DD'));
+    } else {
+      setFromDate(moment(date).format('YYYY-MM-DD'));
+      setToDate('');
+    }
   }
 
   const theme = useContext(themeContext);
+
   return (
     <View style={{backgroundColor: theme.backColor, flex: 1}}>
       <View style={styles.searchSectionWrapper}>
         <SearchBar
           value={keyword}
           onChangeText={setKeyword}
-          onSubmitEditing={handleSearch}
-          // onChange={setKeyword}
+          onSubmitEditing={() => handleSearch()}
           returnKeyType="search"
           placeholder="Search"
           theme="light"
           platform="android"
           style={styles.searchBar}></SearchBar>
-        <TouchableOpacity onPress={() => {}} style={styles.filterBtn}>
+        <TouchableOpacity
+          onPress={() => {
+            setModalVisible(true);
+          }}
+          style={styles.filterBtn}>
           <Ionicons name="options" size={30} color={Colors.white} />
         </TouchableOpacity>
       </View>
@@ -174,13 +299,60 @@ const Search = ({navigation}) => {
           ))}
         </ScrollView>
       </View>
+      <Modal
+        animationType="slide"
+        className="back"
+        visible={modalVisible}
+        onRequestClose={() => {
+          setModalVisible(!modalVisible);
+        }}>
+        <CalendarPicker
+          startFromMonday={true}
+          allowRangeSelection={true}
+          minDate={new Date('01-01-2020')}
+          maxDate={new Date()}
+          todayBackgroundColor="#1D5868"
+          onDateChange={onDateChange}
+          selectedDayColor="#1D5868"
+          selectedDayTextColor="#FFFFFF"
+        />
+        <View className="flex flex-row items-center justify-center w-full gap-6 ">
+          <Pressable
+            className="bg-[#E36414] p-2 rounded text-white"
+            onPress={() => {
+              setToDate('');
+              setFromDate('');
+              setModalVisible(!modalVisible);
+            }}>
+            <Text className="text-white" style={styles.textStyle}>
+              Cancel
+            </Text>
+          </Pressable>
+          <Pressable
+            className="bg-[#1D5868] p-2 rounded text-white"
+            onPress={() => {
+              setModalVisible(!modalVisible);
+              searchByDate();
+            }}>
+            <Text className="text-white">OK</Text>
+          </Pressable>
+        </View>
+      </Modal>
 
       <FlatList
         data={articles}
         keyExtractor={(item, index) => 'key' + index}
         renderItem={({item}) => <Card item={item} />}
+        showsVerticalScrollIndicator={false}
+        onEndReachedThreshold={0.5}
+        onMomentumScrollBegin={() => {
+          this.onEndReachedCalledDuringMomentum = false;
+        }}
         onEndReached={() => {
-          getArticle(page, keyword);
+          if (!this.onEndReachedCalledDuringMomentum) {
+            loadMoreArticles();
+            this.onEndReachedCalledDuringMomentum = true;
+          }
         }}
         onRefresh={() => onRefresh()}
         refreshing={loading}
@@ -275,10 +447,12 @@ const styles = StyleSheet.create({
   categoryBtnTxt: {
     marginLeft: 5,
     color: Colors.black,
+    fontSize: 16,
   },
   categoryBtnTxtActive: {
     marginLeft: 5,
     color: Colors.white,
+    fontSize: 16,
   },
 });
 
