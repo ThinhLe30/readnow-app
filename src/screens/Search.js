@@ -20,6 +20,7 @@ import SearchBar from 'react-native-platform-searchbar';
 import moment from 'moment';
 import {AuthContext} from '../hooks/authContext';
 import {AuthRequirement} from './AuthRequired';
+import NotFound from './NotFound';
 
 const Search = ({navigation}) => {
   const [loading, setLoading] = useState(false);
@@ -44,7 +45,6 @@ const Search = ({navigation}) => {
   }, []);
 
   function onRefresh() {
-    console.log('onRefresh', loading);
     loadFirstPage();
     setKeyword('');
     setActiveID('');
@@ -64,7 +64,6 @@ const Search = ({navigation}) => {
       });
   }
   function loadFirstPage() {
-    console.log('loadFirstPage');
     setLoading(true);
     newAPI
       .get('search')
@@ -86,7 +85,6 @@ const Search = ({navigation}) => {
     if (isEnd) return;
     setLoading(true);
     let url = `search?keyword=${keyword}&page=1&categories=${activeID}&fromDate=${fromDate}&toDate=${toDate}`;
-    console.log(url);
     newAPI
       .get(url)
       .then(async function (response) {
@@ -116,7 +114,6 @@ const Search = ({navigation}) => {
   function searchCategories(categoryID) {
     setLoading(true);
     let url = `search?keyword=${keyword}&page=1&categories=${categoryID}&fromDate=${fromDate}&toDate=${toDate}`;
-    console.log(url);
     newAPI
       .get(url)
       .then(async function (response) {
@@ -146,7 +143,6 @@ const Search = ({navigation}) => {
   function searchByDate() {
     setLoading(true);
     let url = `search?keyword=${keyword}&page=1&categories=${activeID}&fromDate=${fromDate}&toDate=${toDate}`;
-    console.log(url);
     newAPI
       .get(url)
       .then(async function (response) {
@@ -183,7 +179,6 @@ const Search = ({navigation}) => {
     if (isEnd) return;
     setLoading(true);
     let url = `search?keyword=${keyword}&page=${nextPage}&categories=${activeID}&fromDate=${fromDate}&toDate=${toDate}`;
-    console.log(url);
     newAPI
       .get(url)
       .then(async function (response) {
@@ -215,7 +210,6 @@ const Search = ({navigation}) => {
       });
   }
   function chooseCategory(item, index) {
-    console.log('chooseCategory');
     let categoryId = '';
     setActiveID(prevActiveID => {
       if (prevActiveID === item.id) {
@@ -359,6 +353,7 @@ const Search = ({navigation}) => {
         ListFooterComponent={() =>
           loading && <ActivityIndicator size="large" />
         }
+        ListEmptyComponent={NotFound}
       />
     </View>
   );

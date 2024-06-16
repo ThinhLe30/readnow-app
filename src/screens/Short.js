@@ -5,6 +5,7 @@ import themeContext from '../config/themeContext';
 
 import newAPI from '../apis/News';
 import ShortCard from '../components/ShortCard';
+import NotFound from './NotFound';
 
 const Short = ({navigation}) => {
   useEffect(() => {
@@ -91,6 +92,7 @@ const Short = ({navigation}) => {
         ListFooterComponent={() =>
           loading && <ActivityIndicator size="large" />
         }
+        ListEmptyComponent={NotFound}
       />
     </View>
   );

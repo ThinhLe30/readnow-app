@@ -1,21 +1,14 @@
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-  Image,
-  Dimensions,
-} from 'react-native';
+import {View, StyleSheet, Image} from 'react-native';
 import React, {useEffect, useState, useContext} from 'react';
 import {GoogleSigninButton} from '@react-native-google-signin/google-signin';
-import SwipeUpDownModal from 'react-native-swipe-modal-up-down';
 import {signInWithGoogle} from '../config/auth';
 import {useMutation} from '@tanstack/react-query';
 import apiInstance from '../apis/News';
 import {AuthContext} from '../hooks/authContext';
+import {LoginRequiredContext} from '../hooks/loginContext';
 const CommonLogin = () => {
-  const {height} = Dimensions.get('window');
-  const {login} = useContext(AuthContext);
+  const {userInfo, login} = useContext(AuthContext);
+  const context = useContext(LoginRequiredContext);
   const [modalVisible, setModalVisible] = useState(true);
   const mutation = useMutation({
     mutationFn: newTodo => {
@@ -26,6 +19,7 @@ const CommonLogin = () => {
     if (mutation.isSuccess) {
       console.log(mutation?.data?.data?.token);
       login(mutation.data?.data?.token);
+      context.handleLoginRequired(false);
     }
   }, [mutation.isSuccess]);
   const handleSignIn = async () => {
@@ -45,7 +39,11 @@ const CommonLogin = () => {
     });
   };
   return (
-    <View className="flex-1 justify-center items-center">
+    <View className="flex-1 justify-center ">
+      <Image
+        source={require('../assets/img/News-bro.png')}
+        className="h-[300px] w-[300px]"
+      />
       <GoogleSigninButton
         size={GoogleSigninButton.Size.Wide}
         onPress={handleSignIn}

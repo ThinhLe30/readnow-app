@@ -1,31 +1,24 @@
 import React, {useEffect, useState, useContext} from 'react';
-import {
-  View,
-  StyleSheet,
-  ActivityIndicator,
-  Text,
-  FlatList,
-  ScrollView,
-  StatusBar,
-  Image,
-  Pressable,
-} from 'react-native';
+import {View, StyleSheet, Text, FlatList} from 'react-native';
 
 import newAPI from '../apis/News';
 import Card from '../components/Card';
 import TrendNews from '../screens/TrendNews';
 
 import themeContext from '../config/themeContext';
+import NotFound from './NotFound';
+import axios from 'axios';
 
 //API call
 
 const Home = ({navigation}) => {
-  const [isLoading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [recent, setRecentNews] = useState([]);
   useEffect(() => {
     getRecentNew();
   }, []);
   function getRecentNew() {
+    setLoading(true);
     newAPI
       .get('search/recents')
       .then(async function (response) {
@@ -56,12 +49,12 @@ const Home = ({navigation}) => {
             }}>
             Trending News
           </Text>
-          {isLoading ? (
+          {/* {loading ? (
             <ActivityIndicator size="large" color="#DA3349" />
           ) : (
-            <TrendNews />
-          )}
-
+            
+          )} */}
+          <TrendNews />
           <View
             style={{
               borderBottomColor: 'gray',
@@ -87,6 +80,9 @@ const Home = ({navigation}) => {
             keyExtractor={(item, index) => 'key' + index}
             renderItem={({item}) => <Card item={item} />}
             style={{marginBottom: 65}}
+            onRefresh={() => getRecentNew()}
+            refreshing={loading}
+            ListEmptyComponent={NotFound}
           />
         </View>
       </View>

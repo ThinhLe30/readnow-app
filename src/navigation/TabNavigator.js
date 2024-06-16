@@ -5,6 +5,7 @@ import Home from '../screens/Home';
 import Search from '../screens/Search';
 import Short from '../screens/Short';
 import Profile from '../screens/Profile';
+import Checklist from '../screens/Checklist';
 const Tab = createBottomTabNavigator();
 const BottomTabNavigator = () => {
   return (
@@ -44,12 +45,12 @@ const BottomTabNavigator = () => {
       />
       <Tab.Screen
         name="Checklist"
-        component={Short}
+        component={Checklist}
         options={{
           headerShown: false,
           tabBarActiveTintColor: '#1D5868',
           tabBarIcon: ({color, size}) => (
-            <Ionicons name="heart" color={color} size={30} />
+            <Ionicons name="bookmark" color={color} size={30} />
           ),
         }}
       />

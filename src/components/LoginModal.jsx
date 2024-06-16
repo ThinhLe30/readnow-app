@@ -10,7 +10,7 @@ const Login = () => {
       style={{
         backgroundColor: 'white',
         padding: 24,
-        height: 500,
+        height: 550,
         width: '100%',
         position: 'absolute',
         bottom: -20 * 1.1,

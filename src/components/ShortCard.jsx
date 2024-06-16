@@ -95,7 +95,7 @@ function ShortCard({item, onPress}) {
           <Text style={styles.author}>
             {item.author ? item.author : 'Not Available'}
           </Text>
-          <Text style={styles.desc} numberOfLines={10}>
+          <Text style={styles.desc} numberOfLines={5}>
             {item.summary}
           </Text>
           <Text style={styles.content} numberOfLines={18}>

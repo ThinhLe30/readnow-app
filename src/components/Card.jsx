@@ -1,4 +1,4 @@
-import React, {useContext, useState} from 'react';
+import React, {useContext, useState, useEffect} from 'react';
 import SwipeUpDownModal from 'react-native-swipe-modal-up-down';
 import {
   View,
@@ -7,26 +7,33 @@ import {
   Dimensions,
   Text,
   Share,
+  Pressable,
   TouchableNativeFeedback,
   TouchableOpacity,
 } from 'react-native';
 import {AuthContext} from '../hooks/authContext';
 import {LoginRequiredContext} from '../hooks/loginContext';
-
+import Login from './LoginModal';
 import themeContext from '../config/themeContext';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Detail from './Detail';
 import moment from 'moment';
 import newAPI from '../apis/News';
+import Animated, {FadeIn, FadeOut} from 'react-native-reanimated';
+const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 const {width, height} = Dimensions.get('window');
 
 function Card({item, onPress}) {
   const context = useContext(LoginRequiredContext);
   const {userInfo} = useContext(AuthContext);
   const [modalVisible, setModalVisible] = useState(false);
-  const [iconColor, setIconColor] = useState('#3C5B6F');
-  const [iconBackground, setIconBackground] = useState('heart-outline');
   const [animateModal, setanimateModal] = useState(false);
+  const [isChecked, setIsChecked] = useState(item.isChecked);
+  // setIsChecked(item.isChecked);
+
+  useEffect(() => {
+    setIsChecked(item.isChecked);
+  }, [item.isChecked]);
 
   const handleShare = () => {
     const {url, title} = item; //get url and title form our prop
@@ -37,20 +44,21 @@ function Card({item, onPress}) {
     );
   };
 
-  const toggleSavedForLater = () => {
-    console.log('userInfo:', userInfo);
+  const toggleSavedForLater = async () => {
     if (!userInfo) {
       context.handleLoginRequired(true);
     } else {
-      setIconBackground(iconBackground === 'heart' ? 'heart-outline' : 'heart');
-      setIconColor(
-        iconBackground === 'heart' ? theme.textColor : theme.headerColor,
-      );
+      try {
+        await newAPI.post(`article-interact/checklist/${item.id}`).then(() => {
+          setIsChecked(!isChecked);
+        });
+      } catch (error) {
+        console.log(error);
+      }
     }
   };
   const handleClick = async () => {
     setModalVisible(!modalVisible);
-
     try {
       newAPI.post(`article-interact/view/${item.id}`);
     } catch (error) {
@@ -89,7 +97,11 @@ function Card({item, onPress}) {
                 padding: 5,
               }}
               onPress={toggleSavedForLater}>
-              <Ionicons name={iconBackground} color={iconColor} size={35} />
+              <Ionicons
+                name={isChecked ? 'bookmark' : 'bookmark-outline'}
+                color={theme.headerColor}
+                size={30}
+              />
             </TouchableOpacity>
           </View>
           <Text
@@ -101,6 +113,7 @@ function Card({item, onPress}) {
               fontWeight: 'bold',
               color: theme.textColor,
               maxWidth: width * 0.85,
+              textAlign: 'justify',
             }}
             numberOfLines={2}>
             {item.title}
@@ -153,13 +166,13 @@ function Card({item, onPress}) {
             </View>
             <View style={{flexDirection: 'row', alignItems: 'center'}}>
               <Ionicons
-                name="arrow-up-circle-outline"
+                name="chevron-up-circle-outline"
                 color={theme.textColor}
                 size={20}
                 style={{marginRight: 5}}
               />
               <Text style={{fontSize: 14, color: theme.textColor}}>
-                {item.viewCount}
+                {item.voteCount}
               </Text>
             </View>
             <TouchableOpacity
@@ -191,6 +204,22 @@ function Card({item, onPress}) {
             <View style={{flex: 1}}>
               <Detail item={item} />
             </View>
+            {context.isLoginRequired && (
+              <>
+                <AnimatedPressable
+                  entering={FadeIn}
+                  exiting={FadeOut}
+                  style={{
+                    ...StyleSheet.absoluteFill,
+                    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+                    zIndex: 1,
+                  }}
+                  onPress={() =>
+                    context.handleLoginRequired(false)
+                  }></AnimatedPressable>
+                <Login />
+              </>
+            )}
           </View>
         }
         HeaderStyle={styles.headerContent}

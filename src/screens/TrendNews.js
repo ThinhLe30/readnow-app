@@ -3,6 +3,7 @@ import {FlatList, View, ActivityIndicator, Dimensions} from 'react-native';
 
 import TopNewsCard from '../components/TopNewsCard';
 import newAPI from '../apis/News';
+import NotFound from './NotFound';
 
 const TrendNews = ({navigation}) => {
   const [isLoading, setLoading] = useState(true);
@@ -52,6 +53,7 @@ const TrendNews = ({navigation}) => {
           data={newstech}
           keyExtractor={(item, index) => 'key' + index}
           renderItem={({item}) => <TopNewsCard item={item} />}
+          ListEmptyComponent={NotFound}
         />
       )}
     </View>
