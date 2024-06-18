@@ -19,7 +19,6 @@ import {Colors} from 'react-native/Libraries/NewAppScreen';
 import SearchBar from 'react-native-platform-searchbar';
 import moment from 'moment';
 import {AuthContext} from '../hooks/authContext';
-import {AuthRequirement} from './AuthRequired';
 import NotFound from './NotFound';
 
 const Search = ({navigation}) => {
@@ -35,7 +34,6 @@ const Search = ({navigation}) => {
   const scrollRef = useRef(null);
   const itemRefs = useRef([]);
   const [modalVisible, setModalVisible] = useState(false);
-  const {userInfo, logout} = useContext(AuthContext);
 
   useEffect(() => {
     loadFirstPage();
@@ -335,7 +333,7 @@ const Search = ({navigation}) => {
 
       <FlatList
         data={articles}
-        keyExtractor={(item, index) => 'key' + index}
+        keyExtractor={(item, index) => item.id}
         renderItem={({item}) => <Card item={item} />}
         showsVerticalScrollIndicator={false}
         onEndReachedThreshold={0.5}

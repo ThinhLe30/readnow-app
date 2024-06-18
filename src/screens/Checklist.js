@@ -1,17 +1,11 @@
 import React, {useEffect, useState, useContext} from 'react';
-import {
-  View,
-  Dimensions,
-  ActivityIndicator,
-  FlatList,
-  Text,
-} from 'react-native';
+import {View, ActivityIndicator, FlatList, Text} from 'react-native';
 // import {FlatList} from 'react-native-gesture-handler';
 import themeContext from '../config/themeContext';
 import {AuthContext} from '../hooks/authContext';
 import {AuthRequirement} from './AuthRequired';
 import newAPI from '../apis/News';
-import Card from '../components/Card';
+import ChecklistCard from '../components/CheckListCard';
 import NotFound from './NotFound';
 
 const Checklist = ({navigation}) => {
@@ -21,9 +15,8 @@ const Checklist = ({navigation}) => {
   const [loading, setLoading] = useState(false);
   const [articles, setArticles] = useState([]);
   const theme = useContext(themeContext);
-  const {userInfo, logout} = useContext(AuthContext);
+  const {userInfo} = useContext(AuthContext);
 
-  const {height} = Dimensions.get('window');
   function onRefresh() {
     loadChecklist();
   }
@@ -58,8 +51,8 @@ const Checklist = ({navigation}) => {
       </Text>
       <FlatList
         data={articles}
-        keyExtractor={(item, index) => 'key' + index}
-        renderItem={({item}) => <Card item={item} />}
+        keyExtractor={(item, index) => item.id}
+        renderItem={({item}) => <ChecklistCard item={item} />}
         showsVerticalScrollIndicator={false}
         onMomentumScrollBegin={() => {
           this.onEndReachedCalledDuringMomentum = false;

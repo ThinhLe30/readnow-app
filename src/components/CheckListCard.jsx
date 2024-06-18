@@ -23,7 +23,7 @@ import Animated, {FadeIn, FadeOut} from 'react-native-reanimated';
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 const {width, height} = Dimensions.get('window');
 
-function Card({item, onPress}) {
+function ChecklistCard({item, onPress}) {
   const context = useContext(LoginRequiredContext);
   const {userInfo} = useContext(AuthContext);
   const [modalVisible, setModalVisible] = useState(false);
@@ -72,9 +72,7 @@ function Card({item, onPress}) {
     } else {
       try {
         await newAPI.post(`article-interact/checklist/${item.id}`).then(() => {
-          notChecked = !isChecked;
-          setIsChecked(notChecked);
-          item.isChecked = notChecked;
+          setIsChecked(!isChecked);
         });
       } catch (error) {
         console.log(error);
@@ -137,7 +135,7 @@ function Card({item, onPress}) {
               marginHorizontal: width * 0.03,
               marginVertical: width * 0.03,
               fontSize: 20,
-              // fontStyle: 'bold',
+              // fontWeight: 'bold',
               color: theme.textColor,
               maxWidth: width * 0.85,
               textAlign: 'justify',
@@ -166,7 +164,7 @@ function Card({item, onPress}) {
                 borderRadius: 15,
                 justifyContent: 'center',
                 alignItems: 'center',
-                width: 100,
+                width: 120,
                 padding: 2,
                 elevation: 3,
                 marginLeft: 10,
@@ -177,7 +175,6 @@ function Card({item, onPress}) {
                   fontSize: 10,
                   color: 'white',
                 }}>
-                {/* 🕘 {moment(item.publishedAt).format('MMMM Do YYYY')} */}
                 🕘 {displayTime}
               </Text>
             </View>
@@ -313,4 +310,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Card;
+export default ChecklistCard;

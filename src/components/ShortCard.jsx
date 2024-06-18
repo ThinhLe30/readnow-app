@@ -1,5 +1,6 @@
-import React, {useContext, useState} from 'react';
+import React, {useContext, useState, useEffect} from 'react';
 import SwipeUpDownModal from 'react-native-swipe-modal-up-down';
+import Animated, {FadeIn, FadeOut} from 'react-native-reanimated';
 import {
   View,
   StyleSheet,
@@ -9,22 +10,51 @@ import {
   Share,
   TouchableNativeFeedback,
   TouchableOpacity,
+  Pressable,
 } from 'react-native';
 import themeContext from '../config/themeContext';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Detail from './Detail';
 import moment from 'moment';
+import {AuthContext} from '../hooks/authContext';
+import {LoginRequiredContext} from '../hooks/loginContext';
+import RenderHTML from 'react-native-render-html';
+import newAPI from '../apis/News';
+const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
 const {width, height} = Dimensions.get('window');
 
 function ShortCard({item, onPress}) {
   const [modalVisible, setModalVisible] = useState(false);
-  const [iconColor, setIconColor] = useState('#3C5B6F');
-  const [iconBackground, setIconBackground] = useState('heart-outline');
+  const {userInfo} = useContext(AuthContext);
+  const context = useContext(LoginRequiredContext);
   const [animateModal, setanimateModal] = useState(false);
+  const [isChecked, setIsChecked] = useState(item.isChecked);
   const source = {
     html: item.content,
   };
+
+  const now = moment();
+  const publishedTime = moment(item.publishedAt);
+  const timeDifferenceInMinutes = now.diff(publishedTime, 'minutes');
+  const timeDifferenceInHours = now.diff(publishedTime, 'hours');
+  const timeDifferenceInDays = now.diff(publishedTime, 'days');
+
+  let displayTime;
+
+  if (timeDifferenceInMinutes < 1) {
+    displayTime = 'Just now';
+  } else if (timeDifferenceInMinutes < 60) {
+    displayTime = `${timeDifferenceInMinutes} min later`;
+  } else if (timeDifferenceInHours < 24) {
+    displayTime = `${timeDifferenceInHours} hour${
+      timeDifferenceInHours > 1 ? 's' : ''
+    } later`;
+  } else {
+    displayTime = `${timeDifferenceInDays} day${
+      timeDifferenceInDays > 1 ? 's' : ''
+    } ago`;
+  }
 
   //handleShare
   const handleShare = () => {
@@ -35,17 +65,31 @@ function ShortCard({item, onPress}) {
       {dialogTitle: `Share ${title}`},
     );
   };
+  useEffect(() => {
+    setIsChecked(item.isChecked);
+  }, [item.isChecked]);
 
-  const toggleSavedForLater = () => {
-    setIconBackground(iconBackground === 'heart' ? 'heart-outline' : 'heart');
-    setIconColor(
-      iconBackground === 'heart' ? theme.textColor : theme.headerColor,
-    );
+  const toggleSavedForLater = async () => {
+    if (!userInfo) {
+      context.handleLoginRequired(true);
+    } else {
+      try {
+        await newAPI.post(`article-interact/checklist/${item.id}`).then(() => {
+          notChecked = !isChecked;
+          setIsChecked(notChecked);
+          item.isChecked = notChecked;
+        });
+      } catch (error) {
+        console.log(error);
+      }
+    }
   };
 
   const theme = useContext(themeContext);
   return (
-    <View>
+    <Animated.View
+      entering={FadeIn.duration(200)}
+      exiting={FadeOut.duration(200)}>
       <TouchableNativeFeedback onPress={() => setModalVisible(!modalVisible)}>
         <View
           style={{
@@ -76,7 +120,11 @@ function ShortCard({item, onPress}) {
                 padding: 5,
               }}
               onPress={toggleSavedForLater}>
-              <Ionicons name={iconBackground} color={iconColor} size={35} />
+              <Ionicons
+                name={isChecked ? 'bookmark' : 'bookmark-outline'}
+                color={theme.headerColor}
+                size={30}
+              />
             </TouchableOpacity>
           </View>
           <Text
@@ -85,27 +133,31 @@ function ShortCard({item, onPress}) {
               marginHorizontal: width * 0.03,
               marginVertical: width * 0.03,
               fontSize: 20,
-              fontWeight: 'bold',
+              // fontStyle: 'bold',
               color: theme.textColor,
               maxWidth: width * 0.85,
             }}
+            className="font-bold"
             numberOfLines={2}>
             {item.title}
           </Text>
           <Text style={styles.author}>
             {item.author ? item.author : 'Not Available'}
           </Text>
-          <Text style={styles.desc} numberOfLines={5}>
+          <Text style={styles.desc} numberOfLines={5} className="italic">
             {item.summary}
           </Text>
-          <Text style={styles.content} numberOfLines={18}>
+          {/* <Text style={styles.content} numberOfLines={18}>
             {item.content}
-          </Text>
-
-          {/* <RenderHtml source={source} contentWidth={width} /> */}
+          </Text> */}
+          <RenderHTML
+            source={source}
+            contentWidth={width}
+            baseStyle={styles.baseStyle}
+          />
           <View
             className="
-            absolute  w-full 
+            absolute  w-full
             bottom-2"
             style={{
               flexDirection: 'row',
@@ -128,7 +180,7 @@ function ShortCard({item, onPress}) {
                   fontSize: 10,
                   color: 'white',
                 }}>
-                🕘 {moment(item.publishedAt).format('MMMM Do YYYY')}
+                🕘 {displayTime}
               </Text>
             </View>
 
@@ -151,7 +203,7 @@ function ShortCard({item, onPress}) {
                 style={{marginRight: 5}}
               />
               <Text style={{fontSize: 14, color: theme.textColor}}>
-                {item.viewCount}
+                {item.voteCount}
               </Text>
             </View>
             <TouchableOpacity
@@ -197,7 +249,7 @@ function ShortCard({item, onPress}) {
           setanimateModal(false);
         }}
       />
-    </View>
+    </Animated.View>
   );
 }
 const styles = StyleSheet.create({
@@ -224,7 +276,7 @@ const styles = StyleSheet.create({
     color: 'black',
     maxWidth: width * 0.85,
     textAlign: 'justify',
-    fontStyle: 'italic',
+    // fontStyle: 'italic',
   },
   content: {
     width: width,
@@ -251,6 +303,15 @@ const styles = StyleSheet.create({
   Modal: {
     // backgroundColor: '#005252',
     marginTop: 0,
+  },
+  baseStyle: {
+    fontSize: 16,
+    textAlign: 'justify',
+    lineHeight: 20,
+    color: 'black',
+    marginHorizontal: width * 0.03,
+    marginVertical: width * 0.03,
+    height: height * 0.25,
   },
 });
 

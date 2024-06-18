@@ -165,6 +165,12 @@ function Detail({item, onPress}) {
   const source = {
     html: item.content,
   };
+  const summary = {
+    html: item.summary,
+  };
+  const title = {
+    html: item.title,
+  };
 
   async function handleSavePress() {
     if (!userInfo) {
@@ -172,7 +178,9 @@ function Detail({item, onPress}) {
     } else {
       try {
         await newAPI.post(`article-interact/checklist/${item.id}`).then(() => {
-          setIsChecked(!isChecked);
+          notChecked = !isChecked;
+          setIsChecked(notChecked);
+          item.isChecked = notChecked;
         });
       } catch (error) {
         console.log(error);
@@ -186,7 +194,9 @@ function Detail({item, onPress}) {
     } else {
       try {
         await newAPI.post(`article-interact/vote/${item.id}`).then(() => {
-          setIsVoted(!isVoted);
+          notVoted = !isVoted;
+          setIsVoted(notVoted);
+          item.isVoted = notVoted;
         });
       } catch (error) {
         console.log(error);
@@ -211,12 +221,24 @@ function Detail({item, onPress}) {
         headerImage={{uri: item.imageURL}}>
         <TriggeringView onHide={() => console.log('text hidden')}>
           <View style={styles.cardContent}>
-            <Text style={[styles.title, {color: theme.textColor}]}>
+            {/* <Text
+              style={[styles.title, {color: theme.textColor}]}
+              className="font-bold">
               {item.title}
-            </Text>
-            <Text style={[styles.summary, {color: theme.textColor}]}>
+            </Text> */}
+            <RenderHtml
+              source={title}
+              contentWidth={width}
+              baseStyle={styles.title}
+            />
+            <RenderHtml
+              contentWidth={width}
+              source={summary}
+              baseStyle={styles.summary}
+            />
+            {/* <Text style={[styles.summary, {color: theme.textColor}]}>
               {item.summary}
-            </Text>
+            </Text> */}
             <RenderHtml
               source={source}
               contentWidth={width}
@@ -285,21 +307,25 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 10,
+    marginBottom: 5,
     textAlign: 'justify',
+    color: 'black',
+    fontWeight: 'bold',
   },
   summary: {
     fontSize: 18,
+    lineHeight: 22,
     fontStyle: 'italic',
-    marginBottom: 20,
     textAlign: 'justify',
+    marginBottom: 5,
+    color: 'black',
   },
   baseStyle: {
     fontSize: 18,
-    textAlign: 'justify',
-    lineHeight: 24,
+    textAlign: '',
+    lineHeight: 22,
     color: 'black',
+    textAlign: 'justify',
   },
   authorContainer: {
     borderTopWidth: 1,
@@ -307,7 +333,7 @@ const styles = StyleSheet.create({
   },
   author: {
     fontSize: 16,
-    fontWeight: 'bold',
+    fontStyle: 'bold',
   },
   date: {
     fontSize: 14,

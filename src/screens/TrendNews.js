@@ -1,5 +1,11 @@
 import React, {useEffect, useState} from 'react';
-import {FlatList, View, ActivityIndicator, Dimensions} from 'react-native';
+import {
+  FlatList,
+  View,
+  ActivityIndicator,
+  Dimensions,
+  StyleSheet,
+} from 'react-native';
 
 import TopNewsCard from '../components/TopNewsCard';
 import newAPI from '../apis/News';
@@ -10,15 +16,10 @@ const TrendNews = ({navigation}) => {
   const [newstech, setNewsTech] = useState([]);
 
   const width = Dimensions.get('window');
-
+  const cardWidth = width * 0.8 + 20;
   useEffect(() => {
     getNewsFromAPI();
   }, []);
-
-  /* const newsResponse = async() => {
-        const response = await newAPI.get('everything?q=tesla&from=2021-07-19&sortBy=publishedAt&apiKey=920deb9f754348c0bec4871fef36d971')
-        console.log(response.data)
-    } */
 
   function getNewsFromAPI() {
     newAPI
@@ -37,7 +38,6 @@ const TrendNews = ({navigation}) => {
   if (!newstech) {
     return null;
   }
-
   return (
     <View>
       {isLoading ? (
@@ -51,9 +51,11 @@ const TrendNews = ({navigation}) => {
           horizontal={true}
           showsHorizontalScrollIndicator={false}
           data={newstech}
-          keyExtractor={(item, index) => 'key' + index}
+          keyExtractor={(item, index) => item.id}
           renderItem={({item}) => <TopNewsCard item={item} />}
           ListEmptyComponent={NotFound}
+          refreshing={isLoading}
+          onRefresh={() => getNewsFromAPI()}
         />
       )}
     </View>

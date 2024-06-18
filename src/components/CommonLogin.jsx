@@ -24,13 +24,6 @@ const CommonLogin = () => {
   }, [mutation.isSuccess]);
   const handleSignIn = async () => {
     const userInfo = await signInWithGoogle();
-    console.log({
-      authId: userInfo?.user?.id,
-      name: userInfo?.user?.name,
-      email: userInfo?.user?.email,
-      photo: userInfo?.user?.photo,
-    });
-
     mutation.mutate({
       authID: userInfo?.user?.id,
       name: userInfo?.user?.name,

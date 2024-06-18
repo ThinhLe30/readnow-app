@@ -1,11 +1,17 @@
 import React, {useEffect, useState, useContext} from 'react';
-import {View, Dimensions, ActivityIndicator, FlatList} from 'react-native';
-// import {FlatList} from 'react-native-gesture-handler';
+import {
+  View,
+  Dimensions,
+  ActivityIndicator,
+  FlatList,
+  StyleSheet,
+  Text,
+} from 'react-native';
 import themeContext from '../config/themeContext';
-
 import newAPI from '../apis/News';
 import ShortCard from '../components/ShortCard';
 import NotFound from './NotFound';
+import Animated, {Easing, FadeIn, FadeOut} from 'react-native-reanimated';
 
 const Short = ({navigation}) => {
   useEffect(() => {
@@ -18,12 +24,13 @@ const Short = ({navigation}) => {
   const theme = useContext(themeContext);
 
   const {height} = Dimensions.get('window');
+
   function onRefresh() {
     setEnd(false);
     loadFirstPage();
   }
+
   function loadMoreArticles() {
-    console.log('load more', isEnd);
     if (isEnd) {
       return;
     }
@@ -51,6 +58,7 @@ const Short = ({navigation}) => {
         setLoading(false);
       });
   }
+
   function loadFirstPage() {
     setLoading(true);
     newAPI
@@ -67,11 +75,12 @@ const Short = ({navigation}) => {
         setLoading(false);
       });
   }
+
   return (
-    <View style={{backgroundColor: theme.backColor}}>
+    <View style={[styles.container, {backgroundColor: theme.backColor}]}>
       <FlatList
         data={articles}
-        keyExtractor={(item, index) => 'key' + index}
+        keyExtractor={(item, index) => item.id}
         renderItem={({item}) => <ShortCard item={item} />}
         showsVerticalScrollIndicator={false}
         onEndReachedThreshold={0.5}
@@ -97,5 +106,11 @@ const Short = ({navigation}) => {
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+});
 
 export default Short;
