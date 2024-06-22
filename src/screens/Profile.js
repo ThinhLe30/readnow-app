@@ -24,7 +24,6 @@ const Profile = () => {
     return <AuthRequirement />;
   }
   const userDecoded = jwtDecode(userInfo);
-  console.log(userDecoded);
 
   return (
     // <View

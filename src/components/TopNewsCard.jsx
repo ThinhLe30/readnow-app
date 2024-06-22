@@ -1,97 +1,3 @@
-// import React, {useContext, useState} from 'react';
-// import {
-//   Modal,
-//   Share,
-//   Button,
-//   View,
-//   StyleSheet,
-//   TouchableWithoutFeedback,
-//   Image,
-//   Dimensions,
-//   Text,
-// } from 'react-native';
-// import themeContext from '../config/themeContext';
-
-// const {width, height} = Dimensions.get('window');
-
-// function Card({item, onPress}) {
-//   const [modalVisible, setModalVisible] = useState(false);
-//   const theme = useContext(themeContext);
-//   //onPress={() => Linking.openURL(item.url)} >
-
-//   //handleShare
-//   const handleShare = () => {
-//     const {url, title} = item; //get url and title form our prop
-//     var message = `${title} \n\n Read More ${url} \n\n Shared via The NewsXTimes`; // custome message
-//     return Share.share(
-//       {title, message, url: message},
-//       {dialogTitle: `Share ${title}`},
-//     );
-//   };
-//   function handleClick(item) {}
-
-//   return (
-//     <View>
-//       <TouchableWithoutFeedback onPress={() => handleClick(item)}>
-//         <View className="relative">
-//           <Image
-//             source={
-//               item.imageURL
-//                 ? {uri: item.imageURL}
-//                 : require('../assets/img/defaultNews.jpeg')
-//             }
-//             style={{
-//               width: width * 0.8,
-//               height: height * 0.22,
-//               marginRight: 20,
-//             }}
-//             resizeMode="cover"
-//             className="rounded-3xl"
-//           />
-//           {/* Title and Author */}
-//           <View className="absolute bottom-6 left-4 justify-end h-[80%]">
-//             <View className=" space-y-1">
-//               <View className=" max-w-[98%]">
-//                 <Text className="text-white text-base font-semibold capitalize">
-//                   {item.title.length > 60
-//                     ? item.title.slice(0, 58) + '...'
-//                     : item.title.split('-')[0] || 'N/A'}
-//                 </Text>
-//               </View>
-
-//               <View className="">
-//                 <Text className="text-neutral-300 text-sm font-medium">
-//                   {item?.author?.length > 20
-//                     ? item.author.slice(0, 20) + '...'
-//                     : item.author}
-//                 </Text>
-//               </View>
-//             </View>
-//           </View>
-//         </View>
-//       </TouchableWithoutFeedback>
-//     </View>
-//   );
-// }
-// const styles = StyleSheet.create({
-//   image: {
-//     width: 200,
-//     height: 100,
-//   },
-//   author: {
-//     width: width,
-//     marginTop: -10,
-//     marginHorizontal: width * 0.03,
-//     color: 'darkgray',
-//     maxWidth: width * 0.4,
-//   },
-// });
-
-// export default Card;
-
-// //cardBackground
-
-// TopNewsCard.js
 import React, {useContext, useState} from 'react';
 import {
   View,
@@ -100,10 +6,9 @@ import {
   Image,
   Dimensions,
   Text,
-  Share,
   Pressable,
 } from 'react-native';
-import themeContext from '../config/themeContext';
+import NewsDetail from './NewsDetail';
 import SwipeUpDownModal from 'react-native-swipe-modal-up-down';
 import Detail from './Detail';
 import Login from './LoginModal';
@@ -114,18 +19,10 @@ const {width, height} = Dimensions.get('window');
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
 function TopNewsCard({item}) {
-  const theme = useContext(themeContext);
   const [modalVisible, setModalVisible] = useState(false);
   const [animateModal, setanimateModal] = useState(false);
   const context = useContext(LoginRequiredContext);
-  const handleShare = () => {
-    const {url, title} = item;
-    var message = `${title} \n\n Read More ${url} \n\n Shared via The NewsXTimes`;
-    return Share.share(
-      {title, message, url: message},
-      {dialogTitle: `Share ${title}`},
-    );
-  };
+
   const onPress = () => {
     setModalVisible(!modalVisible);
     try {
@@ -149,15 +46,19 @@ function TopNewsCard({item}) {
             resizeMode="cover"
           />
           <View style={styles.textContainer}>
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+              }}>
+              <Text style={styles.author}>{item.author}</Text>
+              <View style={styles.dot} />
+              <Text style={styles.author}>{item.category.name}</Text>
+            </View>
             <Text style={styles.title}>
               {item.title.length > 60
                 ? item.title.slice(0, 58) + '...'
                 : item.title.split('-')[0] || 'N/A'}
-            </Text>
-            <Text style={styles.author}>
-              {item?.author?.length > 20
-                ? item.author.slice(0, 20) + '...'
-                : item.author}
             </Text>
           </View>
         </View>
@@ -179,7 +80,7 @@ function TopNewsCard({item}) {
               flexDirection: 'column',
             }}>
             <View style={{flex: 1}}>
-              <Detail item={item} />
+              <NewsDetail item={item} />
             </View>
             {context.isLoginRequired && (
               <>
@@ -203,7 +104,7 @@ function TopNewsCard({item}) {
         ContentModalStyle={styles.Modal}
         HeaderContent={
           <View style={styles.containerHeader}>
-            <Ionicons name="chevron-down-outline" size={40} color={'#FFFFFF'} />
+            <Ionicons name="chevron-down-outline" size={40} color={'black'} />
           </View>
         }
         onClose={() => {
@@ -242,12 +143,12 @@ const styles = StyleSheet.create({
     right: 10,
   },
   title: {
-    color: '#fff',
+    color: 'white',
     fontSize: 18,
     fontWeight: 'bold',
   },
   author: {
-    color: 'lightgray',
+    color: 'white',
     fontSize: 14,
   },
   containerContent: {flex: 1, marginTop: 40},
@@ -267,6 +168,29 @@ const styles = StyleSheet.create({
   Modal: {
     // backgroundColor: '#005252',
     marginTop: 0,
+  },
+  tag: {
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 5,
+    borderRadius: 5,
+    alignSelf: 'flex-end',
+    margin: 10,
+  },
+  tagText: {
+    color: 'white',
+    marginLeft: 5,
+    fontSize: 14,
+  },
+  dot: {
+    width: 4,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: 'white',
+    // marginHorizontal: 5,
+    marginRight: 5,
+    marginLeft: 5,
   },
 });
 

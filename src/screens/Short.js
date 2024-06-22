@@ -11,7 +11,6 @@ import themeContext from '../config/themeContext';
 import newAPI from '../apis/News';
 import ShortCard from '../components/ShortCard';
 import NotFound from './NotFound';
-import Animated, {Easing, FadeIn, FadeOut} from 'react-native-reanimated';
 
 const Short = ({navigation}) => {
   useEffect(() => {

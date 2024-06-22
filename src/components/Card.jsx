@@ -16,7 +16,7 @@ import {LoginRequiredContext} from '../hooks/loginContext';
 import Login from './LoginModal';
 import themeContext from '../config/themeContext';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import Detail from './Detail';
+import NewsDetail from './NewsDetail';
 import moment from 'moment';
 import newAPI from '../apis/News';
 import Animated, {FadeIn, FadeOut} from 'react-native-reanimated';
@@ -29,28 +29,29 @@ function Card({item, onPress}) {
   const [modalVisible, setModalVisible] = useState(false);
   const [animateModal, setanimateModal] = useState(false);
   const [isChecked, setIsChecked] = useState(item.isChecked);
-  // setIsChecked(item.isChecked);
 
-  const now = moment();
-  const publishedTime = moment(item.publishedAt);
-  const timeDifferenceInMinutes = now.diff(publishedTime, 'minutes');
-  const timeDifferenceInHours = now.diff(publishedTime, 'hours');
-  const timeDifferenceInDays = now.diff(publishedTime, 'days');
+  function computeTimeDifference() {
+    let displayTime;
+    const now = moment().add(7, 'hours');
+    const publishedTime = moment(item.publishedAt);
+    const timeDifferenceInMinutes = now.diff(publishedTime, 'minutes');
+    const timeDifferenceInHours = now.diff(publishedTime, 'hours');
+    const timeDifferenceInDays = now.diff(publishedTime, 'days');
 
-  let displayTime;
-
-  if (timeDifferenceInMinutes < 1) {
-    displayTime = 'Just now';
-  } else if (timeDifferenceInMinutes < 60) {
-    displayTime = `${timeDifferenceInMinutes} min later`;
-  } else if (timeDifferenceInHours < 24) {
-    displayTime = `${timeDifferenceInHours} hour${
-      timeDifferenceInHours > 1 ? 's' : ''
-    } later`;
-  } else {
-    displayTime = `${timeDifferenceInDays} day${
-      timeDifferenceInDays > 1 ? 's' : ''
-    } ago`;
+    if (timeDifferenceInMinutes < 1) {
+      displayTime = 'Just now';
+    } else if (timeDifferenceInMinutes < 60) {
+      displayTime = `${timeDifferenceInMinutes} min later`;
+    } else if (timeDifferenceInHours < 24) {
+      displayTime = `${timeDifferenceInHours} hour${
+        timeDifferenceInHours > 1 ? 's' : ''
+      } later`;
+    } else {
+      displayTime = `${timeDifferenceInDays} day${
+        timeDifferenceInDays > 1 ? 's' : ''
+      } ago`;
+    }
+    return displayTime;
   }
 
   useEffect(() => {
@@ -90,6 +91,16 @@ function Card({item, onPress}) {
     }
   };
 
+  const formatNumber = num => {
+    if (num >= 1000000000) {
+      return (num / 1000000000).toFixed(1) + 'B';
+    } else if (num >= 1000000) {
+      return (num / 1000000).toFixed(1) + 'M';
+    } else if (num >= 1000) {
+      return (num / 1000).toFixed(1) + 'k';
+    }
+    return num;
+  };
   const theme = useContext(themeContext);
   return (
     <View>
@@ -126,7 +137,7 @@ function Card({item, onPress}) {
               onPress={toggleSavedForLater}>
               <Ionicons
                 name={isChecked ? 'bookmark' : 'bookmark-outline'}
-                color={theme.headerColor}
+                color={isChecked ? theme.headerColor : 'black'}
                 size={30}
               />
             </TouchableOpacity>
@@ -138,6 +149,7 @@ function Card({item, onPress}) {
               marginVertical: width * 0.03,
               fontSize: 20,
               // fontStyle: 'bold',
+              // fontFamily: 'SpaceGroteskBold',
               color: theme.textColor,
               maxWidth: width * 0.85,
               textAlign: 'justify',
@@ -146,9 +158,36 @@ function Card({item, onPress}) {
             numberOfLines={2}>
             {item.title}
           </Text>
-          <Text style={styles.author}>
+          {/* <Text style={styles.author}>
             {item.author ? item.author : 'Not Available'}
           </Text>
+          */}
+          <View className="flex-row items-center flex">
+            <Text style={styles.author}>
+              {item.author ? item.author : 'Not Available'}
+            </Text>
+
+            <View
+              style={{
+                backgroundColor: theme.headerColor,
+                borderRadius: 15,
+                justifyContent: 'center',
+                alignItems: 'center',
+                width: 80,
+                padding: 2,
+                elevation: 3,
+                marginTop: -10,
+              }}>
+              <Text
+                style={{
+                  fontSize: 10,
+                  color: 'white',
+                }}>
+                {item.category.name}
+              </Text>
+            </View>
+          </View>
+
           <Text style={styles.summary} numberOfLines={5}>
             {item.summary}
           </Text>
@@ -178,7 +217,7 @@ function Card({item, onPress}) {
                   color: 'white',
                 }}>
                 {/* 🕘 {moment(item.publishedAt).format('MMMM Do YYYY')} */}
-                🕘 {displayTime}
+                🕘 {computeTimeDifference()}
               </Text>
             </View>
 
@@ -190,7 +229,7 @@ function Card({item, onPress}) {
                 style={{marginRight: 5}}
               />
               <Text style={{fontSize: 14, color: theme.textColor}}>
-                {item.viewCount}
+                {formatNumber(item.viewCount)}
               </Text>
             </View>
             <View style={{flexDirection: 'row', alignItems: 'center'}}>
@@ -201,7 +240,7 @@ function Card({item, onPress}) {
                 style={{marginRight: 5}}
               />
               <Text style={{fontSize: 14, color: theme.textColor}}>
-                {item.voteCount}
+                {formatNumber(item.voteCount)}
               </Text>
             </View>
             <TouchableOpacity
@@ -210,7 +249,11 @@ function Card({item, onPress}) {
                 marginRight: 10,
               }}
               onPress={handleShare}>
-              <Ionicons name="share-social" color={theme.textColor} size={20} />
+              <Ionicons
+                name="share-outline"
+                color={theme.textColor}
+                size={20}
+              />
             </TouchableOpacity>
           </View>
         </View>
@@ -218,7 +261,6 @@ function Card({item, onPress}) {
       <SwipeUpDownModal
         modalVisible={modalVisible}
         PressToanimate={animateModal}
-        //if you don't pass HeaderContent you should pass marginTop in view of ContentModel to Make modal swipeable
         ContentModal={
           <View
             style={{
@@ -231,7 +273,8 @@ function Card({item, onPress}) {
               flexDirection: 'column',
             }}>
             <View style={{flex: 1}}>
-              <Detail item={item} />
+              {/* <Detail item={item} /> */}
+              <NewsDetail item={item} />
             </View>
             {context.isLoginRequired && (
               <>
@@ -255,7 +298,7 @@ function Card({item, onPress}) {
         ContentModalStyle={styles.Modal}
         HeaderContent={
           <View style={styles.containerHeader}>
-            <Ionicons name="chevron-down-outline" size={40} color={'#FFFFFF'} />
+            <Ionicons name="chevron-down-outline" size={40} color={'black'} />
           </View>
         }
         onClose={() => {
@@ -273,7 +316,6 @@ const styles = StyleSheet.create({
     // resizeMode: 'cover',
   },
   author: {
-    width: width,
     marginTop: -10,
     marginHorizontal: width * 0.03,
     color: 'gray',
@@ -308,8 +350,13 @@ const styles = StyleSheet.create({
     marginTop: 0,
   },
   Modal: {
-    // backgroundColor: '#005252',
     marginTop: 0,
+  },
+  authorContainer: {
+    // flexDirection: 'row',
+  },
+  category: {
+    color: 'black',
   },
 });
 

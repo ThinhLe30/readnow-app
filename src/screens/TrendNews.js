@@ -10,13 +10,12 @@ import {
 import TopNewsCard from '../components/TopNewsCard';
 import newAPI from '../apis/News';
 import NotFound from './NotFound';
-
+import Carousal from 'react-native-snap-carousel';
+var {width} = Dimensions.get('window');
 const TrendNews = ({navigation}) => {
   const [isLoading, setLoading] = useState(true);
   const [newstech, setNewsTech] = useState([]);
 
-  const width = Dimensions.get('window');
-  const cardWidth = width * 0.8 + 20;
   useEffect(() => {
     getNewsFromAPI();
   }, []);
@@ -39,27 +38,49 @@ const TrendNews = ({navigation}) => {
     return null;
   }
   return (
-    <View>
+    <View style={styles.container}>
       {isLoading ? (
         <ActivityIndicator visible={true} />
       ) : (
-        <FlatList
+        // <FlatList
+        //   style={{
+        //     marginTop: 10,
+        //     marginLeft: 20,
+        //   }}
+        //   horizontal={true}
+        //   showsHorizontalScrollIndicator={false}
+        //   data={newstech}
+        //   keyExtractor={(item, index) => item.id}
+        //   renderItem={({item}) => <TopNewsCard item={item} />}
+        //   ListEmptyComponent={NotFound}
+        //   refreshing={isLoading}
+        //   onRefresh={() => getNewsFromAPI()}
+        // />
+        <Carousal
           style={{
             marginTop: 10,
             marginLeft: 20,
           }}
-          horizontal={true}
-          showsHorizontalScrollIndicator={false}
           data={newstech}
-          keyExtractor={(item, index) => item.id}
           renderItem={({item}) => <TopNewsCard item={item} />}
-          ListEmptyComponent={NotFound}
+          firstItem={1}
+          inactiveSlideScale={0.86}
+          inactiveSlideOpacity={0.6}
+          sliderWidth={width}
+          itemWidth={width * 0.8}
+          slideStyle={{display: 'flex', alignItems: 'center'}}
           refreshing={isLoading}
           onRefresh={() => getNewsFromAPI()}
+          ListEmptyComponent={NotFound}
         />
       )}
     </View>
   );
 };
 
+const styles = StyleSheet.create({
+  container: {
+    window,
+  },
+});
 export default TrendNews;

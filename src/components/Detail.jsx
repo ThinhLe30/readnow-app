@@ -249,7 +249,8 @@ function Detail({item, onPress}) {
                 {item.author === null ? 'Legit Source' : item.author}
               </Text>
               <Text style={[styles.date, {color: theme.textColor}]}>
-                🕘 {moment(item.publishedAt).format('MMMM Do YYYY, h:mm a')}
+                🕘{' '}
+                {moment(item.publishedAt).utc().format('MMMM Do YYYY, h:mm a')}
               </Text>
             </View>
           </View>
@@ -322,7 +323,6 @@ const styles = StyleSheet.create({
   },
   baseStyle: {
     fontSize: 18,
-    textAlign: '',
     lineHeight: 22,
     color: 'black',
     textAlign: 'justify',

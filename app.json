@@ -1,6 +1,6 @@
 {
   "name": "AwesomeProject",
-  "displayName": "AwesomeProject",
+  "displayName": "ReadNow",
   "expo": {
     "plugins": ["@react-native-google-signin/google-signin"],
     "android": {

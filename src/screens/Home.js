@@ -1,6 +1,6 @@
 import React, {useEffect, useState, useContext} from 'react';
-import {View, StyleSheet, Text, FlatList} from 'react-native';
-
+import {View, StyleSheet, Text, FlatList, TouchableOpacity} from 'react-native';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import newAPI from '../apis/News';
 import Card from '../components/Card';
 import TrendNews from '../screens/TrendNews';
@@ -15,10 +15,14 @@ const Home = ({navigation}) => {
   const [isEnd, setEnd] = useState(false);
   const [recent, setRecentNews] = useState([]);
   const [nextPage, setNextPage] = useState(1);
+  const flatListRef = React.useRef();
   useEffect(() => {
     getRecentNew();
   }, []);
-
+  const toTop = () => {
+    // use current
+    flatListRef.current.scrollToOffset({animated: true, offset: 0});
+  };
   function loadMoreArticles() {
     if (loading) return;
     if (isEnd) {
@@ -77,56 +81,70 @@ const Home = ({navigation}) => {
   const theme = useContext(themeContext);
 
   return (
-    <View style={{backgroundColor: theme.backColor}}>
-      <View>
+    <>
+      <View style={{backgroundColor: theme.backColor}}>
         <View>
-          <Text
-            style={{
-              fontSize: 30,
-              fontWeight: 'bold',
-              marginTop: 10,
-              marginLeft: 20,
-              color: theme.textColor,
-            }}>
-            Trending News
-          </Text>
-          <TrendNews />
-
-          <Text
-            style={{
-              fontSize: 30,
-              fontWeight: 'bold',
-              marginTop: 10,
-              marginLeft: 20,
-              color: theme.textColor,
-            }}>
-            Recent News
-          </Text>
           <View>
-            <FlatList
-              data={recent}
-              showsVerticalScrollIndicator={false}
-              keyExtractor={(item, index) => item.id}
-              renderItem={({item}) => <Card item={item} />}
-              style={{marginBottom: 120}}
-              onRefresh={() => getRecentNew()}
-              refreshing={loading}
-              ListEmptyComponent={NotFound}
-              onEndReachedThreshold={1}
-              onMomentumScrollBegin={() => {
-                this.onEndReachedCalledDuringMomentum = false;
-              }}
-              onEndReached={() => {
-                if (!this.onEndReachedCalledDuringMomentum) {
-                  loadMoreArticles();
-                  this.onEndReachedCalledDuringMomentum = true;
-                }
-              }}
-            />
+            <Text
+              style={{
+                fontSize: 30,
+                fontWeight: 'bold',
+                marginTop: 10,
+                marginLeft: 20,
+                color: theme.textColor,
+              }}>
+              Trending News
+            </Text>
+            <TrendNews />
+
+            <Text
+              style={{
+                fontSize: 30,
+                fontWeight: 'bold',
+                marginTop: 10,
+                marginLeft: 20,
+                color: theme.textColor,
+              }}>
+              Recent News
+            </Text>
+            <View>
+              <FlatList
+                data={recent}
+                ref={flatListRef}
+                showsVerticalScrollIndicator={false}
+                keyExtractor={(item, index) => item.id}
+                renderItem={({item}) => <Card item={item} />}
+                style={{marginBottom: 120}}
+                onRefresh={() => getRecentNew()}
+                refreshing={loading}
+                ListEmptyComponent={NotFound}
+                onEndReachedThreshold={1}
+                onMomentumScrollBegin={() => {
+                  this.onEndReachedCalledDuringMomentum = false;
+                }}
+                onEndReached={() => {
+                  if (!this.onEndReachedCalledDuringMomentum) {
+                    loadMoreArticles();
+                    this.onEndReachedCalledDuringMomentum = true;
+                  }
+                }}
+              />
+            </View>
           </View>
         </View>
       </View>
-    </View>
+      <View className=" rounded-full items-center justify-center flex-col absolute bottom-10 right-5 gap-3">
+        <TouchableOpacity
+          className="bg-gray-100 p-2 rounded-full"
+          onPress={toTop}>
+          <Ionicons
+            name={'caret-up-circle-outline'}
+            color={theme.headerColor}
+            size={30}
+          />
+        </TouchableOpacity>
+      </View>
+    </>
   );
 };
 

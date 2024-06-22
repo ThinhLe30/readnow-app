@@ -18,7 +18,6 @@ import newAPI from '../apis/News';
 import {Colors} from 'react-native/Libraries/NewAppScreen';
 import SearchBar from 'react-native-platform-searchbar';
 import moment from 'moment';
-import {AuthContext} from '../hooks/authContext';
 import NotFound from './NotFound';
 
 const Search = ({navigation}) => {
@@ -33,6 +32,7 @@ const Search = ({navigation}) => {
   const [toDate, setToDate] = useState('');
   const scrollRef = useRef(null);
   const itemRefs = useRef([]);
+  const flatListRef = React.useRef();
   const [modalVisible, setModalVisible] = useState(false);
 
   useEffect(() => {
@@ -41,6 +41,11 @@ const Search = ({navigation}) => {
   useEffect(() => {
     getCategories();
   }, []);
+
+  const toTop = () => {
+    // use current
+    flatListRef.current.scrollToOffset({animated: true, offset: 0});
+  };
 
   function onRefresh() {
     loadFirstPage();
@@ -139,6 +144,7 @@ const Search = ({navigation}) => {
   }
 
   function searchByDate() {
+    toTop();
     setLoading(true);
     let url = `search?keyword=${keyword}&page=1&categories=${activeID}&fromDate=${fromDate}&toDate=${toDate}`;
     newAPI
@@ -168,6 +174,7 @@ const Search = ({navigation}) => {
   }
 
   function handleSearch() {
+    toTop();
     setEnd(false);
     searchArticles();
   }
@@ -208,6 +215,7 @@ const Search = ({navigation}) => {
       });
   }
   function chooseCategory(item, index) {
+    toTop();
     let categoryId = '';
     setActiveID(prevActiveID => {
       if (prevActiveID === item.id) {
@@ -302,7 +310,8 @@ const Search = ({navigation}) => {
           startFromMonday={true}
           allowRangeSelection={true}
           minDate={new Date('01-01-2020')}
-          maxDate={new Date()}
+          // maxDate={new Date()}
+          maxDate={new Date(new Date().getTime() + 24 * 60 * 60 * 1000)}
           todayBackgroundColor="#1D5868"
           onDateChange={onDateChange}
           selectedDayColor="#1D5868"
@@ -332,6 +341,7 @@ const Search = ({navigation}) => {
       </Modal>
 
       <FlatList
+        ref={flatListRef}
         data={articles}
         keyExtractor={(item, index) => item.id}
         renderItem={({item}) => <Card item={item} />}
@@ -353,6 +363,17 @@ const Search = ({navigation}) => {
         }
         ListEmptyComponent={NotFound}
       />
+      <View className=" rounded-full items-center justify-center flex-col absolute bottom-10 right-5 gap-3">
+        <TouchableOpacity
+          className="bg-gray-100 p-2 rounded-full"
+          onPress={toTop}>
+          <Ionicons
+            name={'caret-up-circle-outline'}
+            color={theme.headerColor}
+            size={30}
+          />
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };

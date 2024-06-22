@@ -37,6 +37,7 @@
     "react-native-category": "^1.0.4",
     "react-native-event-listeners": "^1.0.7",
     "react-native-gesture-handler": "^1.10.3",
+    "react-native-global-font": "^1.0.3",
     "react-native-image-header-scroll-view": "^1.0.0",
     "react-native-platform-searchbar": "^1.2.3",
     "react-native-reanimated": "^3.12.0",
@@ -44,10 +45,12 @@
     "react-native-safe-area-context": "^3.3.2",
     "react-native-screens": "^3.9.0",
     "react-native-share": "^7.2.1",
+    "react-native-snap-carousel": "^4.0.0-beta.6",
     "react-native-svg": "^15.2.0",
     "react-native-swipe-modal-up-down": "^1.1.0",
     "react-native-vector-icons": "^10.0.0",
-    "react-query": "^3.39.3"
+    "react-query": "^3.39.3",
+    "string-strip-html": "^13.4.8"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",

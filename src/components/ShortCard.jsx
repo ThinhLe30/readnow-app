@@ -10,18 +10,14 @@ import {
   Share,
   TouchableNativeFeedback,
   TouchableOpacity,
-  Pressable,
 } from 'react-native';
 import themeContext from '../config/themeContext';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import Detail from './Detail';
+import NewsDetail from './NewsDetail';
 import moment from 'moment';
 import {AuthContext} from '../hooks/authContext';
 import {LoginRequiredContext} from '../hooks/loginContext';
-import RenderHTML from 'react-native-render-html';
 import newAPI from '../apis/News';
-const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
-
 const {width, height} = Dimensions.get('window');
 
 function ShortCard({item, onPress}) {
@@ -30,30 +26,50 @@ function ShortCard({item, onPress}) {
   const context = useContext(LoginRequiredContext);
   const [animateModal, setanimateModal] = useState(false);
   const [isChecked, setIsChecked] = useState(item.isChecked);
+  const [isVoted, setIsVoted] = useState(item.isVoted);
+  const formatNumber = num => {
+    if (num >= 1000000000) {
+      return (num / 1000000000).toFixed(1) + 'B';
+    } else if (num >= 1000000) {
+      return (num / 1000000).toFixed(1) + 'M';
+    } else if (num >= 1000) {
+      return (num / 1000).toFixed(1) + 'k';
+    }
+    return num;
+  };
   const source = {
     html: item.content,
   };
 
-  const now = moment();
-  const publishedTime = moment(item.publishedAt);
-  const timeDifferenceInMinutes = now.diff(publishedTime, 'minutes');
-  const timeDifferenceInHours = now.diff(publishedTime, 'hours');
-  const timeDifferenceInDays = now.diff(publishedTime, 'days');
+  useEffect(() => {
+    setIsChecked(item.isChecked);
+  }, [item.isChecked]);
+  useEffect(() => {
+    setIsVoted(item.isVoted);
+  }, [item.isVoted]);
 
-  let displayTime;
+  function computeTimeDifference() {
+    let displayTime;
+    const now = moment().add(7, 'hours');
+    const publishedTime = moment(item.publishedAt);
+    const timeDifferenceInMinutes = now.diff(publishedTime, 'minutes');
+    const timeDifferenceInHours = now.diff(publishedTime, 'hours');
+    const timeDifferenceInDays = now.diff(publishedTime, 'days');
 
-  if (timeDifferenceInMinutes < 1) {
-    displayTime = 'Just now';
-  } else if (timeDifferenceInMinutes < 60) {
-    displayTime = `${timeDifferenceInMinutes} min later`;
-  } else if (timeDifferenceInHours < 24) {
-    displayTime = `${timeDifferenceInHours} hour${
-      timeDifferenceInHours > 1 ? 's' : ''
-    } later`;
-  } else {
-    displayTime = `${timeDifferenceInDays} day${
-      timeDifferenceInDays > 1 ? 's' : ''
-    } ago`;
+    if (timeDifferenceInMinutes < 1) {
+      displayTime = 'Just now';
+    } else if (timeDifferenceInMinutes < 60) {
+      displayTime = `${timeDifferenceInMinutes} min later`;
+    } else if (timeDifferenceInHours < 24) {
+      displayTime = `${timeDifferenceInHours} hour${
+        timeDifferenceInHours > 1 ? 's' : ''
+      } later`;
+    } else {
+      displayTime = `${timeDifferenceInDays} day${
+        timeDifferenceInDays > 1 ? 's' : ''
+      } ago`;
+    }
+    return displayTime;
   }
 
   //handleShare
@@ -85,6 +101,22 @@ function ShortCard({item, onPress}) {
     }
   };
 
+  async function handleVotePress() {
+    if (!userInfo) {
+      context.handleLoginRequired(true);
+    } else {
+      try {
+        await newAPI.post(`article-interact/vote/${item.id}`).then(() => {
+          notVoted = !isVoted;
+          setIsVoted(notVoted);
+          item.isVoted = notVoted;
+        });
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  }
+
   const theme = useContext(themeContext);
   return (
     <Animated.View
@@ -111,7 +143,7 @@ function ShortCard({item, onPress}) {
               }
               style={styles.image}
             />
-            <TouchableOpacity
+            {/* <TouchableOpacity
               style={{
                 position: 'absolute',
                 top: 10,
@@ -125,8 +157,9 @@ function ShortCard({item, onPress}) {
                 color={theme.headerColor}
                 size={30}
               />
-            </TouchableOpacity>
+            </TouchableOpacity> */}
           </View>
+
           <Text
             style={{
               width: width,
@@ -141,20 +174,45 @@ function ShortCard({item, onPress}) {
             numberOfLines={2}>
             {item.title}
           </Text>
-          <Text style={styles.author}>
+          {/* <Text style={styles.author}>
             {item.author ? item.author : 'Not Available'}
-          </Text>
+          </Text> */}
+          <View className="flex-row items-center flex">
+            <Text style={styles.author}>
+              {item.author ? item.author : 'Not Available'}
+            </Text>
+
+            <View
+              style={{
+                backgroundColor: theme.headerColor,
+                borderRadius: 15,
+                justifyContent: 'center',
+                alignItems: 'center',
+                width: 80,
+                padding: 2,
+                elevation: 3,
+                marginTop: -10,
+              }}>
+              <Text
+                style={{
+                  fontSize: 10,
+                  color: 'white',
+                }}>
+                {item.category.name}
+              </Text>
+            </View>
+          </View>
           <Text style={styles.desc} numberOfLines={5} className="italic">
             {item.summary}
           </Text>
-          {/* <Text style={styles.content} numberOfLines={18}>
-            {item.content}
-          </Text> */}
-          <RenderHTML
+          <Text style={styles.content} numberOfLines={14}>
+            {item.striptContent}
+          </Text>
+          {/* <RenderHTML
             source={source}
             contentWidth={width}
             baseStyle={styles.baseStyle}
-          />
+          /> */}
           <View
             className="
             absolute  w-full
@@ -180,7 +238,7 @@ function ShortCard({item, onPress}) {
                   fontSize: 10,
                   color: 'white',
                 }}>
-                🕘 {displayTime}
+                🕘 {computeTimeDifference()}
               </Text>
             </View>
 
@@ -192,7 +250,7 @@ function ShortCard({item, onPress}) {
                 style={{marginRight: 5}}
               />
               <Text style={{fontSize: 14, color: theme.textColor}}>
-                {item.viewCount}
+                {formatNumber(item.viewCount)}
               </Text>
             </View>
             <View style={{flexDirection: 'row', alignItems: 'center'}}>
@@ -203,17 +261,9 @@ function ShortCard({item, onPress}) {
                 style={{marginRight: 5}}
               />
               <Text style={{fontSize: 14, color: theme.textColor}}>
-                {item.voteCount}
+                {formatNumber(item.voteCount)}
               </Text>
             </View>
-            <TouchableOpacity
-              style={{
-                justifyContent: 'center',
-                marginRight: 10,
-              }}
-              onPress={handleShare}>
-              <Ionicons name="share-social" color={theme.textColor} size={20} />
-            </TouchableOpacity>
           </View>
         </View>
       </TouchableNativeFeedback>
@@ -233,7 +283,7 @@ function ShortCard({item, onPress}) {
               flexDirection: 'column',
             }}>
             <View style={{flex: 1}}>
-              <Detail item={item} />
+              <NewsDetail item={item} />
             </View>
           </View>
         }
@@ -241,7 +291,7 @@ function ShortCard({item, onPress}) {
         ContentModalStyle={styles.Modal}
         HeaderContent={
           <View style={styles.containerHeader}>
-            <Ionicons name="chevron-down-outline" size={40} color={'#FFFFFF'} />
+            <Ionicons name="chevron-down-outline" size={40} color={'black'} />
           </View>
         }
         onClose={() => {
@@ -249,6 +299,33 @@ function ShortCard({item, onPress}) {
           setanimateModal(false);
         }}
       />
+
+      <View className=" rounded-full items-center justify-center flex-col absolute bottom-16 right-5 bg-transparent">
+        <TouchableOpacity
+          className="bg-gray-100 p-2 m-3 rounded-full"
+          onPress={toggleSavedForLater}>
+          <Ionicons
+            name={isChecked ? 'bookmark' : 'bookmark-outline'}
+            color={isChecked ? theme.headerColor : 'black'}
+            size={25}
+          />
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={handleVotePress}
+          className="bg-gray-100 p-2 m-2 rounded-full">
+          <Ionicons
+            name={isVoted ? 'chevron-up-circle' : 'chevron-up-circle-outline'}
+            color={isVoted ? theme.headerColor : 'black'}
+            size={25}
+          />
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          className="bg-gray-100 p-2 m-3 rounded-full"
+          onPress={handleShare}>
+          <Ionicons name="share-outline" color="black" size={25} />
+        </TouchableOpacity>
+      </View>
     </Animated.View>
   );
 }
@@ -258,16 +335,9 @@ const styles = StyleSheet.create({
     height: height * 0.3,
   },
   author: {
-    width: width,
     marginTop: -10,
     marginHorizontal: width * 0.03,
     color: 'gray',
-  },
-  content: {
-    width: width,
-    marginTop: -10,
-    marginHorizontal: width * 0.03,
-    color: 'black',
   },
   desc: {
     width: width,
