@@ -193,7 +193,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     marginBottom: 5,
-    textAlign: 'justify',
+    // textAlign: 'justify',
     color: 'black',
     fontWeight: 'bold',
   },
@@ -245,9 +245,9 @@ const styles = StyleSheet.create({
   },
   baseStyle: {
     fontSize: 18,
-    lineHeight: 22,
+    // lineHeight: 22,
     color: 'black',
-    textAlign: 'justify',
+    // textAlign: 'justify',
   },
   topHeader: {
     flexDirection: 'row',
@@ -262,9 +262,9 @@ const styles = StyleSheet.create({
   },
   summary: {
     fontSize: 18,
-    lineHeight: 22,
+    // lineHeight: 22,
     fontStyle: 'italic',
-    textAlign: 'justify',
+    // textAlign: 'justify',
     color: 'black',
   },
 });

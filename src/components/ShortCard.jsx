@@ -37,9 +37,6 @@ function ShortCard({item, onPress}) {
     }
     return num;
   };
-  const source = {
-    html: item.content,
-  };
 
   useEffect(() => {
     setIsChecked(item.isChecked);
@@ -101,6 +98,15 @@ function ShortCard({item, onPress}) {
     }
   };
 
+  const handleClick = async () => {
+    setModalVisible(!modalVisible);
+    try {
+      newAPI.post(`article-interact/view/${item.id}`);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   async function handleVotePress() {
     if (!userInfo) {
       context.handleLoginRequired(true);
@@ -122,7 +128,7 @@ function ShortCard({item, onPress}) {
     <Animated.View
       entering={FadeIn.duration(200)}
       exiting={FadeOut.duration(200)}>
-      <TouchableNativeFeedback onPress={() => setModalVisible(!modalVisible)}>
+      <TouchableNativeFeedback onPress={() => handleClick()}>
         <View
           style={{
             position: 'relative',
@@ -169,6 +175,7 @@ function ShortCard({item, onPress}) {
               // fontStyle: 'bold',
               color: theme.textColor,
               maxWidth: width * 0.85,
+              textAlign: 'justify',
             }}
             className="font-bold"
             numberOfLines={2}>
@@ -345,7 +352,7 @@ const styles = StyleSheet.create({
     marginHorizontal: width * 0.03,
     color: 'black',
     maxWidth: width * 0.85,
-    textAlign: 'justify',
+    // textAlign: 'justify',
     // fontStyle: 'italic',
   },
   content: {
@@ -354,7 +361,7 @@ const styles = StyleSheet.create({
     marginHorizontal: width * 0.03,
     color: 'black',
     maxWidth: width * 0.85,
-    textAlign: 'justify',
+    // textAlign: 'justify',
   },
   containerContent: {flex: 1, marginTop: 40},
   containerHeader: {
@@ -376,7 +383,7 @@ const styles = StyleSheet.create({
   },
   baseStyle: {
     fontSize: 16,
-    textAlign: 'justify',
+    // textAlign: 'justify',
     lineHeight: 20,
     color: 'black',
     marginHorizontal: width * 0.03,

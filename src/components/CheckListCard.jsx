@@ -326,7 +326,7 @@ const styles = StyleSheet.create({
     marginHorizontal: width * 0.03,
     color: 'black',
     maxWidth: width * 0.85,
-    textAlign: 'justify',
+    // textAlign: 'justify',
   },
   containerContent: {flex: 1, marginTop: 40},
   containerHeader: {
